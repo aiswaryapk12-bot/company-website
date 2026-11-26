@@ -1,138 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Landing Page</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NovaTech | Technology Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Navigation Bar -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">NovaTech</div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="#" class="logo">NovaTech</a>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#contact" class="btn btn-small">Get in touch</a>
+      </nav>
+    </div>
+  </header>
 
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#why-us">Why Choose Us</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Welcome to NovaTech</p>
+      <h1>Technology solutions that help your business grow</h1>
+      <p class="hero-text">We build, deploy, and maintain reliable software and infrastructure so your team can focus on what matters.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn">Start a project</a>
+        <a href="#services" class="btn btn-outline">Our services</a>
+      </div>
+    </div>
+  </section>
 
-    <!-- Home Section -->
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1>Welcome to NovaTech</h1>
-            <p>
-                Innovative technology solutions to help
-                your business grow faster and smarter.
-            </p>
-            <a href="#contact" class="btn">Get Started</a>
+  <section id="services" class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">What we do</p>
+        <h2>Our services</h2>
+        <p>Practical technology services designed to deliver measurable results.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <h3>Web Development</h3>
+          <p>Fast, responsive websites and web applications built with modern tools.</p>
         </div>
-    </section>
-
-    <!-- About Section -->
-    <section class="about section" id="about">
-        <div class="container">
-            <h2>About Us</h2>
-            <p>
-                NovaTech is a professional technology company
-                dedicated to providing innovative and reliable
-                solutions for businesses. Our mission is to help
-                organizations achieve their goals through
-                technology, creativity and teamwork.
-            </p>
+        <div class="card">
+          <h3>Cloud &amp; DevOps</h3>
+          <p>Automated deployments, containerization, and scalable cloud infrastructure on AWS.</p>
         </div>
-    </section>
-
-    <!-- Services Section -->
-    <section class="services section" id="services">
-        <div class="container">
-            <h2>Our Services</h2>
-
-            <div class="service-container">
-
-                <div class="service-card">
-                    <h3>Web Development</h3>
-                    <p>
-                        We create modern, responsive and
-                        user-friendly websites for businesses.
-                    </p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Cloud Solutions</h3>
-                    <p>
-                        We provide reliable cloud solutions
-                        to improve business performance.
-                    </p>
-                </div>
-
-                <div class="service-card">
-                    <h3>IT Consulting</h3>
-                    <p>
-                        We help businesses choose the right
-                        technology for their needs.
-                    </p>
-                </div>
-
-            </div>
+        <div class="card">
+          <h3>IT Support</h3>
+          <p>Ongoing system administration and maintenance that keeps everything running smoothly.</p>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Why Choose Us Section -->
-    <section class="why-us section" id="why-us">
-        <div class="container">
-            <h2>Why Choose Us?</h2>
+  <section id="about" class="section section-alt">
+    <div class="container about">
+      <div>
+        <p class="eyebrow">About us</p>
+        <h2>A team focused on quality</h2>
+        <p>NovaTech is a small, dedicated team that values transparency, clear communication, and work we can all be proud of.</p>
+        <ul class="checklist">
+          <li>Experienced professionals</li>
+          <li>Transparent pricing</li>
+          <li>On-time delivery</li>
+        </ul>
+      </div>
+      <div class="stats">
+        <div class="stat"><span>5+</span>Years experience</div>
+        <div class="stat"><span>100+</span>Projects delivered</div>
+        <div class="stat"><span>98%</span>Client satisfaction</div>
+      </div>
+    </div>
+  </section>
 
-            <div class="why-container">
-
-                <div class="why-card">
-                    <h3>Experienced Team</h3>
-                    <p>Our skilled team delivers quality solutions.</p>
-                </div>
-
-                <div class="why-card">
-                    <h3>Quality Service</h3>
-                    <p>We focus on customer satisfaction and quality.</p>
-                </div>
-
-                <div class="why-card">
-                    <h3>Reliable Support</h3>
-                    <p>We provide dependable support for our clients.</p>
-                </div>
-
-            </div>
+  <section id="contact" class="section">
+    <div class="container contact">
+      <div class="section-head">
+        <p class="eyebrow">Get in touch</p>
+        <h2>Let's work together</h2>
+        <p>Tell us about your project and we'll get back to you within one business day.</p>
+      </div>
+      <form class="contact-form" action="#" method="post">
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="email" name="email" placeholder="Email address" required>
         </div>
-    </section>
+        <textarea name="message" rows="5" placeholder="How can we help?" required></textarea>
+        <button type="submit" class="btn">Send message</button>
+      </form>
+    </div>
+  </section>
 
-    <!-- Contact Section -->
-    <section class="contact section" id="contact">
-        <div class="container">
-            <h2>Contact Us</h2>
-
-            <p>Have a project in mind? Let's work together!</p>
-
-            <p>Email: info@novatech.com</p>
-
-            <p>Phone: +91 9876543210</p>
-
-            <a href="mailto:info@novatech.com" class="btn">
-                Contact Us
-            </a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>
-            &copy; 2026 NovaTech. All Rights Reserved.
-        </p>
-    </footer>
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 NovaTech. All rights reserved.</p>
+    </div>
+  </footer>
 
 </body>
 </html>
