@@ -19,14 +19,14 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_USERNAME = 'YOUR_DOCKERHUB_USERNAME'
+        DOCKERHUB_USERNAME = 'aiswaryapk1234'
         DOCKERHUB_REPOSITORY = 'company-website'
         DOCKERHUB_CREDENTIAL_ID = 'dockerhub-credentials'
-        DEPLOYMENT_SERVER_IP = 'YOUR_DEPLOYMENT_PRIVATE_IP'
+        DEPLOYMENT_SERVER_IP = '172.31.6.114'
         DEPLOYMENT_SSH_CREDENTIAL_ID = 'deployment-server-ssh'
-        GITHUB_REPOSITORY_URL = 'https://github.com/amayaajayan23-stack/company-website.git'
+        GITHUB_REPOSITORY_URL = 'https://github.com/aiswaryapk12-bot/company-website.git'
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/${DOCKERHUB_REPOSITORY}"
-        CONTAINER_NAME = 'company-website'
+        CONTAINER_NAME ='company-website'
     }
 
     stages {
@@ -102,9 +102,31 @@ pipeline {
                     }
                 }
 
-                stage('Run New Container') {
+                                stage('Run New Container') {
                     steps {
                         script {
                             runOnDeployServer(
                                 "docker run -d --name ${CONTAINER_NAME} " +
-                                "--restart unless-stopped -p 9090:80 ${IMAGE_NAME}:latest
+                                "--restart unless-stopped -p 9090:80 ${IMAGE_NAME}:latest")
+                        }
+                    }
+                }
+
+                stage('Verify Deployment') {
+                    steps {
+                        script {
+                            runOnDeployServer("sleep 3 && docker ps --filter name=${CONTAINER_NAME} " +
+                                "&& curl -fsS -o /dev/null http://localhost:9090 " +
+                                "&& echo Website is running")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo 'Done. Open the deployment server public IP on port 9090 in your browser.' }
+        failure { echo 'Failed. Read the Console Output to find the stage that failed.' }
+    }
+}
