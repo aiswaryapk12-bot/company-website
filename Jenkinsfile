@@ -1,132 +1,113 @@
-// Jenkinsfile - Project 02
-
-def runOnDeployServer(String command) {
-    withCredentials([sshUserPrivateKey(
-        credentialsId: env.DEPLOYMENT_SSH_CREDENTIAL_ID,
-        keyFileVariable: 'SSH_KEY',
-        usernameVariable: 'SSH_USER'
-    )]) {
-        sh "ssh -i \$SSH_KEY -o StrictHostKeyChecking=accept-new " +
-           "\$SSH_USER@${env.DEPLOYMENT_SERVER_IP} '${command}'"
-    }
-}
-
 pipeline {
     agent none
 
-    options {
-        skipDefaultCheckout(true)
-    }
-
     environment {
         DOCKERHUB_USERNAME = 'aiswaryapk1234'
-        DOCKERHUB_REPOSITORY = 'company-website'
-        DOCKERHUB_CREDENTIAL_ID = 'dockerhub-credentials'
-        DEPLOYMENT_SERVER_IP = '172.31.6.114'
-        DEPLOYMENT_SSH_CREDENTIAL_ID = 'deployment-server-ssh'
-        GITHUB_REPOSITORY_URL = 'https://github.com/aiswaryapk12-bot/company-website.git'
-        IMAGE_NAME = "${DOCKERHUB_USERNAME}/${DOCKERHUB_REPOSITORY}"
-        CONTAINER_NAME ='company-website'
+        IMAGE_NAME = 'company-website'
+        CONTAINER_NAME = 'company-landing-page'
+        PORT = '9090'
     }
 
     stages {
 
-        stage('Build Server Tasks') {
-            agent { label 'build-server' }
+        // Stage 1: Checkout and build on build-server
+        stage('Checkout and Build') {
+            agent {
+                label 'build-server'
+            }
 
-            stages {
-                stage('Checkout') {
-                    steps {
-                        git branch: 'main', url: "${GITHUB_REPOSITORY_URL}"
-                    }
-                }
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
 
-                stage('Docker Image Build') {
-                    steps {
-                        sh 'docker build -t $IMAGE_NAME:$BUILD_NUMBER -t $IMAGE_NAME:latest .'
-                    }
-                }
+                echo 'Building Docker image...'
 
-                stage('Docker Hub Login') {
-                    steps {
-                        withCredentials([usernamePassword(
-                            credentialsId: env.DOCKERHUB_CREDENTIAL_ID,
-                            usernameVariable: 'DH_USER',
-                            passwordVariable: 'DH_PASS'
-                        )]) {
-                            sh 'echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin'
-                        }
-                    }
-                }
+                sh '''
+                    docker build -t ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER} .
+                '''
+            }
+        }
 
-                stage('Docker Image Push') {
-                    steps {
-                        sh 'docker push $IMAGE_NAME:$BUILD_NUMBER'
-                        sh 'docker push $IMAGE_NAME:latest'
-                    }
-                    post {
-                        always {
-                            sh 'docker logout'
-                        }
-                    }
+        // Stage 2: Push image to Docker Hub
+        stage('Push to Docker Hub') {
+            agent {
+                label 'build-server'
+            }
+
+            steps {
+                echo 'Logging in to Docker Hub...'
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login \
+                            -u "$DOCKER_USER" \
+                            --password-stdin
+
+                        docker push ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
+
+                        docker logout
+                    '''
                 }
             }
         }
 
-        stage('Deployment Server Tasks') {
-            agent { label 'built-in' }
+        // Stage 3: Deploy on deploy-server
+        stage('Deploy Application') {
+            agent {
+                label 'deployment-server'
+            }
 
-            stages {
-                stage('Connect to Deployment Server') {
-                    steps {
-                        script {
-                            runOnDeployServer('hostname && docker --version')
-                        }
-                    }
-                }
+            steps {
+                echo 'Deploying application on deploy-server...'
 
-                stage('Pull Latest Image') {
-                    steps {
-                        script {
-                            runOnDeployServer("docker pull ${IMAGE_NAME}:latest")
-                        }
-                    }
-                }
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login \
+                            -u "$DOCKER_USER" \
+                            --password-stdin
 
-                stage('Stop Old Container') {
-                    steps {
-                        script {
-                            runOnDeployServer("docker stop ${CONTAINER_NAME} || true")
-                            runOnDeployServer("docker rm ${CONTAINER_NAME} || true")
-                        }
-                    }
-                }
+                        docker pull ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
 
-                                stage('Run New Container') {
-                    steps {
-                        script {
-                            runOnDeployServer(
-                                "docker run -d --name ${CONTAINER_NAME} " +
-                                "--restart unless-stopped -p 9090:80 ${IMAGE_NAME}:latest")
-                        }
-                    }
-                }
+                        docker rm -f ${CONTAINER_NAME} || true
 
-                stage('Verify Deployment') {
-                    steps {
-                        script {
-                            runOnDeployServer("sleep 3 && docker ps --filter name=${CONTAINER_NAME} " +
-                                "&& curl -fsS -o /dev/null http://localhost:9090 " +
-                                "&& echo Website is running")
-                        }
-                    }
+                        docker run -d \
+                            --name ${CONTAINER_NAME} \
+                            -p ${PORT}:80 \
+                            --restart unless-stopped \
+                            ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
+
+                        docker logout
+                    '''
                 }
             }
         }
     }
 
     post {
-        success { echo 'Done. Open the deployment server public IP on port 9090 in your browser.' }
-        failure { echo 'Failed. Read the Console Output to find the stage that failed.' }
+        success {
+            echo 'Application deployed successfully!'
+            echo "Docker image: ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}"
+            echo "Website: http://<deploy-server-ip>:${PORT}"
+        }
+
+        failure {
+            echo 'Pipeline failed. Please check Jenkins logs.'
+        }
+
+        always {
+            echo 'Jenkins pipeline execution completed.'
+        }
     }
 }
